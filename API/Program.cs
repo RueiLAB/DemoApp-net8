@@ -1,4 +1,5 @@
 using API.Extensions;
+using API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// 自訂Middleware
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseCors("AllowAll");
 

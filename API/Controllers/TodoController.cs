@@ -61,6 +61,5 @@ namespace API.Controllers
 
             return NoContent();
         }
-        
     }
 }
