@@ -7,9 +7,11 @@ namespace API.Services.Interfaces;
 
 public interface ITodoService
 {
-    Task<IEnumerable<TodoDto>> GetTodoListAsync();
-    Task<TodoDto?> GetTodoByIdAsync(int id);
-    Task<TodoDto> CreateTodoAsync(CreateTodoDto createTodoDto);
-    Task<bool> UpdateTodoAsync(int id, UpdateTodoDto updateTodoDto);
-    Task<bool> DeleteTodoAsync(int id);
+    Task<IEnumerable<TodoDto>> GetAllTodos();
+    Task<TodoDto?> GetTodoById(int id);
+    Task<TodoDto> CreateTodo(CreateTodoDto createTodoDto);
+    Task<bool> UpdateTodo(int id, UpdateTodoDto updateTodoDto);
+    Task<bool> DeleteTodo(int id);
+    Task<IEnumerable<TodoDto>> GetTodosByCardId(int cardId);
+    Task<bool> AssignTodosToCard(int cardId, List<int> todoIds);
 }

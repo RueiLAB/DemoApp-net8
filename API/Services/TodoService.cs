@@ -14,78 +14,130 @@ public class TodoService : ITodoService
         _todoRepository = todoRepository;
     }
 
-    public async Task<IEnumerable<TodoDto>> GetTodoListAsync()
+    public async Task<IEnumerable<TodoDto>> GetAllTodos()
     {
-        var todos = await _todoRepository.GetTodoListAsync();
-        return todos.Select(todo => new TodoDto
+        var todos = await _todoRepository.GetAllTodos();
+
+        var todoDtos = todos.Select(t => new TodoDto
         {
-            Id = todo.Id,
-            Title = todo.Title,
-            IsCompleted = todo.IsCompleted,
-            CreatedAt = todo.CreatedAt,
-            UpdatedAt = todo.UpdatedAt
+            Id = t.Id,
+            Title = t.Title,
+            IsCompleted = t.IsCompleted,
+            CreatedAt = t.CreatedAt,
+            UpdatedAt = t.UpdatedAt,
+            CardId = t.CardId
         });
+
+        return todoDtos;
     }
 
-    public async Task<TodoDto?> GetTodoByIdAsync(int id)
+    public async Task<TodoDto?> GetTodoById(int id)
     {
-        var todo = await _todoRepository.GetByIdAsync(id);
+        var todo = await _todoRepository.GetTodoById(id);
         if (todo == null)
             return null;
 
-        return new TodoDto
+        var todoDto = new TodoDto()
         {
             Id = todo.Id,
             Title = todo.Title,
             IsCompleted = todo.IsCompleted,
             CreatedAt = todo.CreatedAt,
-            UpdatedAt = todo.UpdatedAt
+            UpdatedAt = todo.UpdatedAt,
+            CardId = todo.CardId
         };
+
+        return todoDto;
     }
 
-    public async Task<TodoDto> CreateTodoAsync(CreateTodoDto createTodoDto)
+    public async Task<TodoDto> CreateTodo(CreateTodoDto createTodoDto)
     {
-        var todo = new Todo
+        var todo = new Todo()
         {
             Title = createTodoDto.Title,
             IsCompleted = false,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            CardId = createTodoDto.CardId
         };
 
-        await _todoRepository.AddAsync(todo);
+        await _todoRepository.CreateTodo(todo);
         await _todoRepository.SaveChangesAsync();
 
-        return new TodoDto
+        var todoDto = new TodoDto
         {
             Id = todo.Id,
             Title = todo.Title,
             IsCompleted = todo.IsCompleted,
             CreatedAt = todo.CreatedAt,
-            UpdatedAt = todo.UpdatedAt
+            UpdatedAt = todo.UpdatedAt,
+            CardId = todo.CardId
         };
+
+        return todoDto;
     }
 
-    public async Task<bool> UpdateTodoAsync(int id, UpdateTodoDto updateTodoDto)
+    public async Task<bool> UpdateTodo(int id, UpdateTodoDto updateTodoDto)
     {
-        var todo = await _todoRepository.GetByIdAsync(id);
-        if (todo == null)
-            return false;
+        var todo = await _todoRepository.GetTodoById(id);
+        if (todo == null) return false;
 
         todo.Title = updateTodoDto.Title;
         todo.IsCompleted = updateTodoDto.IsCompleted;
         todo.UpdatedAt = DateTime.UtcNow;
 
-        _todoRepository.Update(todo);
+        _todoRepository.UpdateTodo(todo);
         return await _todoRepository.SaveChangesAsync();
     }
 
-    public async Task<bool> DeleteTodoAsync(int id)
+    public async Task<bool> DeleteTodo(int id)
     {
-        var todo = await _todoRepository.GetByIdAsync(id);
-        if (todo == null)
-            return false;
+        var todo = await _todoRepository.GetTodoById(id);
+        if (todo == null) return false;
 
-        _todoRepository.Delete(todo);
+        _todoRepository.DeleteTodo(todo);
+        return await _todoRepository.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<TodoDto>> GetTodosByCardId(int cardId)
+    {
+        var todos = await _todoRepository.GetTodosByCardId(cardId);
+
+        var todoDtos = todos.Select(t => new TodoDto
+        {
+            Id = t.Id,
+            Title = t.Title,
+            IsCompleted = t.IsCompleted,
+            CreatedAt = t.CreatedAt,
+            UpdatedAt = t.UpdatedAt,
+            CardId = t.CardId
+        });
+
+        return todoDtos;
+    }
+
+    public async Task<bool> AssignTodosToCard(int cardId, List<int> todoIds)
+    {
+        // 檢查傳入的 TodoId 清單是否有資料
+        if (todoIds == null || !todoIds.Any())
+        {
+            throw new ArgumentException("必須至少提供一筆 Todo 的 ID 進行指派。", nameof(todoIds));
+        }
+
+        foreach (var todoId in todoIds)
+        {
+            var todo = await _todoRepository.GetTodoById(todoId);
+            if (todo == null)
+            {
+                // 如果其中一筆 Todo 找不到，就拋出例外
+                throw new InvalidOperationException($"Todo ID 為 {todoId} 的項目不存在，無法進行指派。");
+            }
+
+            // 指派 Todo 到指定的 Card
+            todo.CardId = cardId;
+            _todoRepository.UpdateTodo(todo);
+        }
+
+        // 儲存所有變更
         return await _todoRepository.SaveChangesAsync();
     }
 }

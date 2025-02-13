@@ -32,7 +32,9 @@ public static class ApplicationServiceExtensions
             });
         });
         // 註冊 Repository 與 Service
+        services.AddScoped<ICardRepository, CardRepository>();
         services.AddScoped<ITodoRepository, TodoRepository>();
+        services.AddScoped<ICardService, CardService>();
         services.AddScoped<ITodoService, TodoService>();
 
         return services;

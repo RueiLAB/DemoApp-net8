@@ -5,10 +5,12 @@ namespace API.Repository.Interfaces;
 
 public interface ITodoRepository
 {
-    Task<IEnumerable<Todo>> GetTodoListAsync();
-    Task<Todo?> GetByIdAsync(int id);
-    Task AddAsync(Todo todo);
-    void Update(Todo todo);
-    void Delete(Todo todo);
+    Task<IEnumerable<Todo>> GetAllTodos();
+    Task<Todo?> GetTodoById(int id);
+    Task CreateTodo(Todo todo);
+    void UpdateTodo(Todo todo);
+    void DeleteTodo(Todo todo);
+    void DeleteTodos(IEnumerable<Todo> todos);
     Task<bool> SaveChangesAsync();
+    Task<IEnumerable<Todo>> GetTodosByCardId(int cardId);
 }

@@ -25,4 +25,9 @@ public class Todo
         /// 完成時間，若尚未完成則為 null
         /// </summary>
         public DateTime? UpdatedAt { get; set; }
+
+        /// <summary>
+        /// 關聯卡片Id
+        /// </summary>
+        public int? CardId { get; set; }
 }

@@ -14,33 +14,45 @@ public class TodoRepository : ITodoRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Todo>> GetTodoListAsync()
+    public async Task<IEnumerable<Todo>> GetAllTodos()
     {
         return await _context.Todos.ToListAsync();
     }
 
-    public async Task<Todo?> GetByIdAsync(int id)
+    public async Task<Todo?> GetTodoById(int id)
     {
         return await _context.Todos.FindAsync(id);
     }
 
-    public async Task AddAsync(Todo todo)
+    public async Task CreateTodo(Todo todo)
     {
         await _context.Todos.AddAsync(todo);
     }
 
-    public void Update(Todo todo)
+    public void UpdateTodo(Todo todo)
     {
         _context.Todos.Update(todo);
     }
 
-    public void Delete(Todo todo)
+    public void DeleteTodo(Todo todo)
     {
         _context.Todos.Remove(todo);
+    }
+
+    public void DeleteTodos(IEnumerable<Todo> todos)
+    {
+        _context.Todos.RemoveRange(todos);
     }
 
     public async Task<bool> SaveChangesAsync()
     {
         return await _context.SaveChangesAsync() > 0;
+    }
+
+    public async Task<IEnumerable<Todo>> GetTodosByCardId(int cardId)
+    {
+        return await _context.Todos
+                             .Where(t => t.CardId == cardId)
+                             .ToListAsync();
     }
 }
